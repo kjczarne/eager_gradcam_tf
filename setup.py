@@ -4,10 +4,10 @@ with open("README.md", "r") as f:
 setuptools.setup(
      name='eagergradcamtf',  
      version='0.1',
-     scripts=['eager_gradcam.py'] ,
      author="Krzysztof J. Czarnecki",
      author_email="kjczarne@gmail.com",
      description="",
+     py_modules=['eagergradcamtf'],
      long_description=long_description,
    long_description_content_type="text/markdown",
      url="https://github.com/kjczarne/eager_gradcam_tf",
