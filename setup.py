@@ -2,7 +2,7 @@ import setuptools
 with open("README.md", "r") as f:
     long_description = f.read()
 setuptools.setup(
-     name='eager_gradcam_tf',  
+     name='eagergradcamtf',  
      version='0.1',
      scripts=['eager_gradcam.py'] ,
      author="Krzysztof J. Czarnecki",
