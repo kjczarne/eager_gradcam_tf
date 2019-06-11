@@ -3,7 +3,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 setuptools.setup(
      name='eagergradcamtf',  
-     version='0.1',
+     version='0.2',
      author="Krzysztof J. Czarnecki",
      author_email="kjczarne@gmail.com",
      description="",

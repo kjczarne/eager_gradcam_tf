@@ -32,29 +32,33 @@ def get_outputs_at_each_layer(model, input_image, layer_type):
     This function works when eager mode in TensorFlow is enabled.
     :param model: tf.keras.models Model or Sequential object
     :param input_image: input image as a tf.Tensor
-    :param layer_type: string specifying layer type, substring of model.layers[i].name, e.g. 'conv'
+    :param layer_type: layer class e.g. tf.keras.layers.Conv2D
     :return: tuple of ouptuts of respective layers and gradients associated with them
     """
     with tf.GradientTape() as tape:
         outputs = tuple_dict()  # custom dict object
-        current_output = model.get_layer(model.layers[0].name)(input_image)
-        outputs[model.layers[0].name] = current_output  # initialize first output layer
+        outputs['input_image'] = input_image  # initialize first input
         # this is because the first layer doesn't take input from any other layer below
         restricted_outputs = []
-        for i in model.layers[:]:  # iterate over all layers
-            # inbound_node in config gets the input node
-            # outbound_node in config points to the operation
-            outbound_nodes = model.get_layer(i.name).outbound_nodes
-            inbound_nodes = model.get_layer(i.name).inbound_nodes
-            for n in outbound_nodes:  # iterate over outbound nodes
-                                      # because we are interested in operations
+
+        nodes_by_depth_keys = list(model._nodes_by_depth.keys())
+        nodes_by_depth_keys.sort(reverse=True)  # this is the proper order of executing ops
+        for k in nodes_by_depth_keys:
+            nodes = model._nodes_by_depth[k]
+            for n in nodes:
                 config = n.get_config()  # returns a dict
+                # inbound_node in config gets the input node
+                # outbound_node in config points to the operation
                 if type(config['outbound_layer']) == list:  # convert lists to tuples
                     obl = tuple(config['outbound_layer'])
                 else:
                     obl = config['outbound_layer']
                 if type(config['inbound_layers']) == list:
-                    ibl = tuple(config['inbound_layers'])
+                    if len(config['inbound_layers']) == 0:
+                        # we expect only the first layer inbound nodes to be non-existent
+                        ibl = 'input_image'
+                    else:
+                        ibl = tuple(config['inbound_layers'])
                 else:
                     ibl = config['inbound_layers']
                 out = model.get_layer(obl)(outputs[ibl])  # magic happens here
@@ -62,13 +66,14 @@ def get_outputs_at_each_layer(model, input_image, layer_type):
                 outputs[obl] = out  # ...and we append it back to the dict containing outputs
                 # keys in the dict are names of layers/nodes, which allows this loop
                 # to get them anytime multiple inputs are needed
-                if layer_type in i.name:  # we return only those layers that we want to see (conv)
+                if isinstance(model.get_layer(obl), layer_type):
+                    # we return only those layers that we want to see (conv)
                     restricted_outputs.append(outputs[obl])
     gradients = tape.gradient(out, restricted_outputs)  # record gradients
     return restricted_outputs, gradients
 
 
-def grad_cam(image, model, image_dims, return_switch=None):
+def grad_cam(image, model, image_dims, return_switch=None, watch_layer_instances=tf.keras.layers.Conv2D):
     """
     Grad-CAM visualization function.
     :param image: path to image as a string
@@ -78,12 +83,14 @@ def grad_cam(image, model, image_dims, return_switch=None):
                           switches output of the function to return gradients,
                           feature maps, both gradients and feature maps,
                           upsampled feature maps or summed feature maps respectively
+    :param watch_layer_instances: single class or tuple of classes of layers to watch
+                                  this is useful for tracking special offshoots of conv layers
     :return: values as specified by return_switch
     This function produces Grad-CAM plots as a side effect
     """
     im = Image.open(image)
     im_tf = np.expand_dims((np.array(im.resize(image_dims))/255).astype(np.float32), axis=0)
-    A_k, dy_dA_k = get_outputs_at_each_layer(model, tf.cast(im_tf, tf.float32), 'conv')
+    A_k, dy_dA_k = get_outputs_at_each_layer(model, tf.cast(im_tf, tf.float32), watch_layer_instances)
     L_c = [tf.keras.layers.ReLU()(tf.math.reduce_sum(tf.math.multiply(dy_dA_k[i], A_k[i]), axis=(3))) for i, _ in enumerate(dy_dA_k)]
     up_all = [np.array(Image.fromarray(i.numpy()[0, :, :]).resize(image_dims, resample=Image.BILINEAR)) for i in L_c]
     summed_maps = tf.keras.layers.ReLU()(np.sum(up_all, axis=0))
