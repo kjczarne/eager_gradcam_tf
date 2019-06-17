@@ -95,12 +95,29 @@ def grad_cam(image, model, image_dims, return_switch=None, watch_layer_instances
     up_all = [np.array(Image.fromarray(i.numpy()[0, :, :]).resize(image_dims, resample=Image.BILINEAR)) for i in L_c]
     summed_maps = tf.keras.layers.ReLU()(np.sum(up_all, axis=0))
     
-    plt.subplot(121)
-    plt_im1 = plt.imshow(im_tf[:,:,0], cmap=plt.cm.gray, interpolation='bilinear')
-    plt_im2 = plt.imshow(summed_maps.numpy(), cmap='magma', alpha=.9, interpolation='nearest')
-    plt.subplot(122)
-    plt_im1 = plt.imshow(im_tf[:,:,0], cmap=plt.cm.gray, interpolation='bilinear')
-    plt_im2 = plt.imshow(summed_maps.numpy()*im_tf[0,:,:,0], cmap='magma', alpha=.9, interpolation='nearest')
+    fig = plt.figure(figsize=(10,10))
+    ax1 = fig.add_subplot(131)
+    ax1.title.set_text('Gradient with 0.9 alpha')
+    plt.axis('off')
+    plt_im1 = plt.imshow(im_tf[0,:,:], cmap=plt.cm.gray, interpolation='bilinear')
+    plt_im2 = plt.imshow(summed_maps.numpy(), cmap='magma', alpha=.95, interpolation='nearest')
+
+    ax2 = fig.add_subplot(132)
+    ax2.title.set_text('Gradient with 0.6 alpha')
+    plt.axis('off')
+    plt_im1 = plt.imshow(im_tf[0,:,:], cmap=plt.cm.gray, interpolation='bilinear')
+    plt_im2 = plt.imshow(summed_maps.numpy(), cmap='magma', alpha=.6, interpolation='nearest')
+
+    ax2 = fig.add_subplot(133)
+    ax2.title.set_text('Original image')
+    plt.axis('off')
+    plt_im1 = plt.imshow(im_tf[0,:,:], cmap=plt.cm.gray, interpolation='bilinear')
+    plt.subplots_adjust(
+        hspace = 4,
+        wspace = 0.3,
+        right = 0.8,
+        left = - 0.8
+    )
     plt.show()
 
     if isinstance(return_switch, str):
