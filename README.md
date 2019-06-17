@@ -35,3 +35,11 @@ This implementation has been tested on ResNet50, Xception and Inception V3 archi
 With that being said I cannot guarantee that this implementation is absolutely accurate and will be happy to hear from the community to get suggestions of improvements to this project.
 
 You can read the original paper by Ramprasaath R. Selvaraju, Michael Cogswell, et al. at https://arxiv.org/abs/1610.02391
+
+### Licensed images
+* images/cleaver.jpg --> Coyau / Wikimedia Commons / CC BY-SA 3.0
+
+* images/granny_smith.jpg --> benjamint444 / Wikimedia Commons / CC BY-SA 3.0
+
+* images/banjo.jpg --> Gregg Miner / Wikimedia Commons / 
+CC BY-SA 3.0
