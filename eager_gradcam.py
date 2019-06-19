@@ -3,7 +3,6 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import datetime
-import cv2
 
 
 class tuple_dict(dict):
