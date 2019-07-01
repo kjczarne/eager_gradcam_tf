@@ -3,7 +3,7 @@ Grad-CAM implementation for TensorFlow 2.0 in Eager Execution mode.
 
 ![Example output](grad_cam.png)
 
-To use you can put the script within your project folder and import it into a Jupyter Notebook or your IDE of preference or install as a pip wheel. You will find the .whl file in dist folder in this repo. After you've cloned the repo, go to the directory in terminal/command line and execute: `pip install eager_gradcam_tf-0.1-py3-none-any.whl`. After that, import it to your code with `import eagergradcamtf`.
+To use you can put the script within your project folder and import it into a Jupyter Notebook or your IDE of preference or install as a pip wheel. You will find the .whl file in dist folder in this repo. After you've cloned the repo, go to the directory in terminal/command line and execute: `pip install eager_gradcam_tf-0.2.1-py3-none-any.whl`. After that, import it to your code with `import eagergradcamtf`.
 
 ## Quick start
 Use `grad-cam` function to view gradients and gradient/photo overlay. A quick presentation using InceptionV3 can be found in Notebook 4. A comparison of ResNet50, Xception and InceptionV3 can be found in Notebook 5.
